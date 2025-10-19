@@ -1,0 +1,54 @@
+---
+import Layout from '../../layouts/Layout.astro';
+const {id} = Astro.params;
+const url = `https://api.themoviedb.org/3/movie/${id}?language=en-US`;
+const options = {
+  method: 'GET',
+  headers: {
+    accept: 'application/json',
+    Authorization: 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI4MGM5ODdlZWVlNmZkOWJlODA3ZmJjZTQ5ZWVhMTFkNCIsIm5iZiI6MTc2MDgwMTE4NC4zMTUsInN1YiI6IjY4ZjNiMWEwZTMzNTBiMTljMTc4ZTBiMyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.koAcVPSsylstzzDbNlfZ7T88OOduXwuMqabb-C3tclY'
+  }
+};
+const data = await fetch(url, options);
+const movie = await data.json();
+const imgPath = 'https://image.tmdb.org/t/p/w500'
+
+
+const urlTrailer = `https://api.themoviedb.org/3/movie/${id}/videos?language=en-US`;
+const optionsTrailer = {
+  method: 'GET',
+  headers: {
+    accept: 'application/json',
+    Authorization: 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI4MGM5ODdlZWVlNmZkOWJlODA3ZmJjZTQ5ZWVhMTFkNCIsIm5iZiI6MTc2MDgwMTE4NC4zMTUsInN1YiI6IjY4ZjNiMWEwZTMzNTBiMTljMTc4ZTBiMyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.koAcVPSsylstzzDbNlfZ7T88OOduXwuMqabb-C3tclY'
+  }
+};
+const dataTrailer = await fetch(urlTrailer, optionsTrailer);
+const trailer = await dataTrailer.json();
+const result = trailer.results.filter((p: any) => p.type === 'Trailer');
+if (result.length === 0) {
+  result.push({ key: 'dQw4w9WgXcQ' });
+}
+const video = result[0];
+const youtubePath = 'https://www.youtube.com/embed/';
+---
+
+<Layout>
+    <div class="row mt-5">
+        <div class="col-md-4">
+            <img src={imgPath + movie.poster_path} 
+            alt={movie.title} 
+            class="img-fluid rounded-start"/>
+        </div>
+        <div class="col-md-8">
+            <h1><span class="badge text-bg-dark">{movie.title}</span></h1>
+            <h4>{movie.tagline}</h4>
+            <p>{movie.overview}</p>
+            <p><span class="badge text-bg-secondary">{movie.release_date}</span></p>
+            <h1><span class="badge text-bg-danger">{Math.round(movie.vote_average)}</span></h1>
+        </div>
+    </div>
+    <div class="text-center" style="margin:15px 0;">
+        <h1 class="m-2 d-inline-block text-bg-dark px-3 py-1">Trailer</h1>
+    </div>
+    <iframe src={youtubePath + video.key} width="1280" height="720" frameborder="0" allowfullscreen></iframe>
+</Layout>
